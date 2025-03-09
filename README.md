@@ -1,49 +1,109 @@
-# 📌 Sistema de Gerenciamento de Dados
+# Loja Virtual em PyQt6
 
-## 📖 Objetivo
-Este sistema permite a inclusão, alteração, exclusão, pesquisa e exibição de registros armazenados em um arquivo de texto (`.txt`). Ele garante a integridade dos dados por meio de validações e exibe informações formatadas para o usuário.
+## Descrição
+Este projeto é uma aplicação de cadastro de roupas desenvolvida em Python utilizando PyQt6. Ele permite o cadastro e remoção de produtos em um arquivo de texto (`produtos.txt`).
 
-## 🛠 Funcionalidades
+## Funcionalidades
+- Adicionar produtos com ID, Nome, Descrição e Preço
+- Remover produtos da lista
+- Exibir a lista de produtos em uma tabela
+- Persistência de dados em arquivo TXT
 
-### 📌 Menu Principal:
-1️⃣ **Inclusão de Registros**  
-   - Adiciona novos registros ao sistema.  
-   - Valida os dados antes de armazená-los no arquivo `TXT`.  
+## Instalação e Configuração
+### 1. Instalação das bibliotecas necessárias
+Antes de executar o programa, é necessário instalar o PyQt6 caso ainda não esteja instalado:
+```sh
+pip install PyQt6
+```
 
-2️⃣ **Alteração de Registros**  
-   - Permite modificar registros existentes com base em um campo chave.  
-   - Aplica validações antes de salvar as alterações.  
+### 2. Estrutura do Projeto
+O projeto deve conter os seguintes arquivos:
+```
+LojaVirtual/
+├── main.py          # Arquivo principal da aplicação
+├── produtos.txt     # Arquivo de armazenamento dos produtos
+└── style.css        # Arquivo de estilo para a interface
+```
 
-3️⃣ **Exclusão de Registros**  
-   - Remove um registro do arquivo `TXT` com base em um campo chave.  
-   - Confirma a ação antes da exclusão.  
+### 3. Como Executar o Projeto
+Execute o arquivo principal `main.py`:
+```sh
+python main.py
+```
 
-4️⃣ **Relatório Geral**  
-   - Exibe todos os registros armazenados no sistema.  
-   - Apresenta os dados formatados para melhor visualização.  
+## Como o Código Funciona
+### 1. Importação das Bibliotecas
+```python
+import os
+import sys
+from PyQt6.QtWidgets import (
+    QApplication, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+    QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QMessageBox
+)
+from PyQt6.QtGui import QFont
+```
+- `os` e `sys`: Para manipulação de arquivos e controle do sistema.
+- `PyQt6.QtWidgets`: Para criação da interface gráfica.
+- `PyQt6.QtGui`: Para personalização de fontes.
 
-5️⃣ **Pesquisa Parcial**  
-   - Busca registros com base em um campo relevante.  
-   - Suporta pesquisas parciais para facilitar a localização de informações.  
+### 2. Manipulação de Arquivos
+A aplicação salva e carrega produtos de um arquivo `produtos.txt`:
+```python
+def ler_arquivo():
+    if not os.path.exists('produtos.txt'):
+        return []
+    with open('produtos.txt', 'r') as file:
+        produtos = [linha.strip().split(', ') for linha in file.readlines()]
+    return produtos
 
-6️⃣ **Saída do Programa**  
-   - Encerra o sistema de forma segura.  
-   - Garante que todas as operações pendentes sejam concluídas antes de sair.  
+def salvar_arquivo(produtos):
+    with open('produtos.txt', 'w') as file:
+        for produto in produtos:
+            file.write(', '.join(produto) + '\n')
+```
 
-## 📂 Armazenamento dos Dados
-- Os dados são armazenados em um arquivo `TXT` estruturado.  
-- Cada registro segue um formato padronizado para fácil manipulação.  
+### 3. Interface Gráfica
+A interface é criada utilizando `QWidget` e `QVBoxLayout`:
+```python
+class App(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Cadastramento de Roupas")
+        self.setGeometry(100, 100, 600, 400)
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+```
 
-## ✅ Validação e Consistência
-- Todas as entradas são verificadas antes do armazenamento.  
-- Evita a duplicação de registros quando necessário.  
-- Campos obrigatórios não podem ser deixados em branco.  
+### 4. Adicionando Produtos
+```python
+def adicionar_produto(self):
+    id_produto = self.id_input.text().strip()
+    nome = self.nome_input.text().strip()
+    descricao = self.desc_input.text().strip()
+    preco = self.preco_input.text().strip()
+    
+    if not id_produto or not nome or not descricao or not preco:
+        QMessageBox.warning(self, "Erro", "Todos os campos são obrigatórios!")
+        return
+    
+    self.produtos.append([id_produto, nome, descricao, preco])
+    salvar_arquivo(self.produtos)
+    self.atualizar_tabela()
+```
 
-## 🎨 Interface e Formatação
-- O sistema fornece mensagens claras e intuitivas ao usuário.  
-- Relatórios seguem um padrão para melhor leitura e organização.  
-- Mensagens de erro e sucesso são exibidas de maneira amigável.  
+### 5. Removendo Produtos
+```python
+def remover_produto(self):
+    linha_selecionada = self.produtos_tabela.currentRow()
+    if linha_selecionada == -1:
+        QMessageBox.warning(self, "Erro", "Selecione um produto para remover.")
+        return
+    
+    self.produtos.pop(linha_selecionada)
+    salvar_arquivo(self.produtos)
+    self.atualizar_tabela()
+```
 
----
+## Conclusão
+Este projeto é um exemplo simples de como criar uma aplicação de cadastro de produtos utilizando PyQt6. Ele pode ser expandido para incluir funcionalidades como edição de produtos, filtros e banco de dados para armazenar os dados de maneira mais eficiente.
 
-📌 *Este documento descreve o funcionamento do sistema e pode ser atualizado conforme necessário.*
